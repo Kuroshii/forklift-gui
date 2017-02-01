@@ -7,7 +7,7 @@ var flash = require('connect-flash');
 
 // Auth packages
 var passport = require('passport');
-var session = require('express-session');
+var cookieSession = require('cookie-session');
 var GoogleStrategy = require('passport-google-oauth2').Strategy;
 
 var app = express();
@@ -15,7 +15,12 @@ var app = express();
 // Misc packages
 app.locals.moment = require('moment');
 
-app.use(session({ secret: process.env.SESSION_SECRET || "this should really be changed", resave: false, saveUninitialized: false}))
+// Authentication
+app.use(cookieSession({
+    secret: process.env.SESSION_SECRET || 'this should really be changed',
+    maxAge: 1000 * 60 * 60 // expires after 60 minutes
+}));
+
 app.use(flash());
 app.use(function(req, res, next) {
     res.locals.errorMessage = req.flash('error');
