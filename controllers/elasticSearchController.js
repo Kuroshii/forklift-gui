@@ -20,7 +20,7 @@ module.exports.updateAsFixed = function(req, res) {
 };
 module.exports.updateAllAsFixed = function(req, res) {
     var queue = req.body.queue;
-    elasticService.poll('replay', queue, function(logs, err) {
+    elasticService.poll('replay', queue, 10000, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
@@ -44,7 +44,7 @@ module.exports.retry = function(req, res) {
 
 module.exports.retryAll = function(req, res) {
     var queue = req.body.queue;
-    elasticService.poll('replay', queue, function(logs, err) {
+    elasticService.poll('replay', queue, 10000, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
@@ -57,7 +57,7 @@ module.exports.retryAll = function(req, res) {
 };
 
 module.exports.showRetries = function(req, res) {
-    elasticService.poll('retry', null, function(logs, err) {
+    elasticService.poll('retry', null, 50, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
@@ -69,7 +69,7 @@ module.exports.showRetries = function(req, res) {
     });
 };
 module.exports.showReplays = function(req, res) {
-    elasticService.poll('replay', null, function(logs, err) {
+    elasticService.poll('replay', null, 50, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
@@ -85,7 +85,7 @@ module.exports.showFilteredResults = function(req, res) {
     var queue = req.query.queue;
 
     var tempService = service == 'retries' ? 'retry' : 'replay';
-    elasticService.poll(tempService, queue, function(logs, err) {
+    elasticService.poll(tempService, queue, 50, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
