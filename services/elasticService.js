@@ -55,7 +55,7 @@ service.get = function(id, done) {
         done(null);
     });
 };
-service.poll = function(service, queue, done) {
+service.poll = function(service, queue, size, done) {
     var index = 'forklift-'+service+'*';
 
     var query;
@@ -78,7 +78,7 @@ service.poll = function(service, queue, done) {
     }
     client.search({
         index: index,
-        size: 50,
+        size: size,
         body: {
             query: query,
             "sort": [{
