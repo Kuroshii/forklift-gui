@@ -1,2 +1,2 @@
-#!/usr/bin/env bash
-/usr/local/bin/npm start 
+#!/usr/bin/env sh
+/usr/local/bin/npm start
