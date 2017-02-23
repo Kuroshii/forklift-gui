@@ -3,7 +3,7 @@ var Stomp = require('stomp-client');
 var logger = require('../utils/logger');
 
 var client = new elasticsearch.Client({
-    host: (process.env.FK_ES_HOST || 'localhost') + ":" + (process.env.FK_ES_PORT || 9200)
+    host: (process.env.FORKLIFT_GUI_ES_HOST || 'localhost') + ":" + (process.env.FORKLIFT_GUI_ES_PORT || 9200)
 });
 
 var stompClient;
@@ -13,7 +13,7 @@ stompConnect();
 
 function stompConnect() {
     logger.info("Connecting stomp client...");
-    stompClient = new Stomp(process.env.FK_STOMP_HOST || 'localhost', process.env.FK_STOMP_PORT || 61613, null, null, null, null, {retries: 5, delay: 10000});
+    stompClient = new Stomp(process.env.FORKLIFT_GUI_STOMP_HOST || 'localhost', process.env.FORKLIFT_GUI_STOMP_PORT || 61613, null, null, null, null, {retries: 5, delay: 10000});
     stompClient.connect(function() {
         logger.info("Stomp client connected!");
     });

@@ -33,8 +33,8 @@ module.exports = function(express) {
     );
     router.get('/auth/google/callback',
         passport.authenticate('google', {
-            successRedirect: process.env.GOOGLE_DOMAIN + 'dashboard',
-            failureRedirect: process.env.GOOGLE_DOMAIN + 'login'
+            successRedirect: process.env.FORKLIFT_GUI_DOMAIN + 'dashboard',
+            failureRedirect: process.env.FORKLIFT_GUI_DOMAIN + 'login'
         })
     );
 
