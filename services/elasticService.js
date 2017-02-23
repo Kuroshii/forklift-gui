@@ -3,7 +3,7 @@ var Stomp = require('stomp-client');
 var logger = require('../utils/logger');
 
 var client = new elasticsearch.Client({
-    host: (process.env.FK_ES_HOST || 'localhost') + ":" + (process.env.FK_ES_PORT || 9200)
+    host: (process.env.FORKLIFT_GUI_ES_HOST || 'localhost') + ":" + (process.env.FORKLIFT_GUI_ES_PORT || 9200)
 });
 
 var stompClient;
