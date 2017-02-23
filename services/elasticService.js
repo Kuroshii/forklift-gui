@@ -13,7 +13,7 @@ stompConnect();
 
 function stompConnect() {
     logger.info("Connecting stomp client...");
-    stompClient = new Stomp(process.env.FK_STOMP_HOST || 'localhost', process.env.FK_STOMP_PORT || 61613, null, null, null, null, {retries: 5, delay: 10000});
+    stompClient = new Stomp(process.env.FORKLIFT_GUI_STOMP_HOST || 'localhost', process.env.FORKLIFT_GUI_STOMP_PORT || 61613, null, null, null, null, {retries: 5, delay: 10000});
     stompClient.connect(function() {
         logger.info("Stomp client connected!");
     });
