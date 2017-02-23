@@ -17,7 +17,7 @@ app.locals.moment = require('moment');
 
 // Authentication
 app.use(cookieSession({
-    secret: process.env.SESSION_SECRET || 'this should really be changed',
+    secret: process.env.SECRET_FORKLIFT_GUI_SESSION_SECRET || 'this should really be changed',
     maxAge: 1000 * 60 * 60 // expires after 60 minutes
 }));
 
@@ -51,9 +51,9 @@ app.use(passport.session());
 passport.serializeUser((user, done) => done(null, user.email));
 passport.deserializeUser((email, done) => done(null, email));
 passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_KEY,
-        clientSecret: process.env.GOOGLE_SECRET,
-        callbackURL: process.env.GOOGLE_DOMAIN + "auth/google/callback"
+        clientID: process.env.SECRET_GLOBAL_GOOGLE_OAUTH_CLIENTID,
+        clientSecret: process.env.SECRET_GLOBAL_GOOGLE_OAUTH_SECRET,
+        callbackURL: process.env.FORKLIFT_GUI_DOMAIN + "auth/google/callback"
     },
     (accessToken, refreshToken, profile, done) => {
         // asynchronous verification
