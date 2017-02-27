@@ -11,4 +11,8 @@ WORKDIR /forklift-gui
 # Expose the default node hosting port.
 EXPOSE 3000
 
+
 ENTRYPOINT ["/forklift-gui/bin/start"]
+
+WORKDIR /forklift-gui
+RUN npm install

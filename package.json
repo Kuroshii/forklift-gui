@@ -25,7 +25,7 @@
     "passport-google-oauth2": "^0.1.6",
     "request": "^2.72.0",
     "serve-favicon": "~2.2.1",
-    "stomp-client": "easternbloc/node-stomp-client#1a2e2ff00a44cf38da62213c6b51d2f46d75c38b",
+    "stomp-client": "0.9.0",
     "stompit": "^0.23.0",
     "winston": "^2.1.1"
   }
