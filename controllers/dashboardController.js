@@ -6,7 +6,7 @@ var elasticService = require('../services/elasticService.js');
 module.exports.show = function (req, res) {
     //Get the users email, name, and profile picture
     var domain = req.user.split("@")[1];
-    if (domain == 'sofi.org' || domain == 'sofi.com') {
+    if (process.env.FORKLIFT_GUI_AUTHORIZED_DOMAINS.indexOf(domain) > -1) {
         // get forklift gui stats
         elasticService.ping(function(alive) {
             if (alive) {
