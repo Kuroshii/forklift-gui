@@ -12,6 +12,9 @@ a.list-group-item
                 button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
                     span.glyphicon.glyphicon-ok
                     |  Fixed
+                button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
+                    span.glyphicon.glyphicon-step-forward
+                    |  Change Step
                 button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
                     span.glyphicon.glyphicon-pencil
                     |  Change Queue

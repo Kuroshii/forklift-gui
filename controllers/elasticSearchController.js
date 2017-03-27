@@ -5,17 +5,27 @@ var logger = require('../utils/logger');
 module.exports.showLinkedLog = function(req, res) {
     elasticService.get(req.query.id, function(log) {
         if (log == null) {
-            req.flash("error", "INVALID LOG ID");
-            res.redirect('/')
+            req.flash("error", "INVALID LOG ID - YOU HAVE BEEN REDIRECTED TO HOME");
+            res.redirect('dashboard');
         }
         res.render('linked-log', {currentUrl: 'replays', log: log})
     });
 };
-module.exports.updateAsFixed = function(req, res) {
+module.exports.updateStep = function(req, res) {
     var updateId = req.body.updateId;
     var index = req.body.index;
-    elasticService.update(index, updateId, 'Fixed', function() {
-        res.end();
+    var step = req.body.step;
+    var correlationId = req.body.correlationId;
+    var text = req.body.text;
+    var queue = req.body.queue;
+    elasticService.update(index, updateId, step == null ? "Fixed" : step, function() {
+        if (step != null && step !== "Fixed") {
+          elasticService.retry(correlationId, text, queue, function() {
+            res.end();
+          });
+        } else {
+          res.end();
+        }
     });
 };
 module.exports.updateAllAsFixed = function(req, res) {
@@ -95,4 +105,4 @@ module.exports.showFilteredResults = function(req, res) {
         }
         res.render('log-display', {currentUrl: service, hits: hits});
     });
-}
+};
