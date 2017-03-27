@@ -77,9 +77,10 @@ $('.fixButton').click(function () {
     var messageId = $(this).attr('messageId');
     var updateId = $(this).attr('logId');
     var index = $(this).attr('index');
-    $.post('fixed', {
+    $.post('updateStep', {
         updateId: updateId,
-        index: index
+        index: index,
+        step: "Fixed"
     }, function() {
         $("#"+messageId).parent().remove();
     });
@@ -116,33 +117,37 @@ $('.changeStepButton').click(function () {
   var messageId = $(this).attr('messageId');
   var updateId = $(this).attr('logId');
   var index = $(this).attr('index');
+  var correlationId = $(this).attr('correlationId');
+  var text = $(this).attr('text');
+  var queue = $(this).attr('queue');
   swal({
     title: "Change Step",
     text: "please enter the step name for this log",
-    input: "select",
-    inputOptions: {
-        'Error': 'Error',
-        'Fixed': 'Fixed',
-        'Complete': 'Complete',
-        'Pending': 'Pending',
-        'Processing': 'Processing',
-        'Validating': 'Validating'
-    },
+    type: "input",
     showCancelButton: true,
-    closeOnConfirm: false
+    closeOnConfirm: false,
+    inputPlaceholder: "Fixed, Error, or Pending"
   }, function(inputValue) {
     if (inputValue === false) return false;
     if (inputValue === "") {
       swal.showInputError("You need to provide a step name");
       return false;
     }
-
-    $.post('changeStep', {
+    if (inputValue !== "Fixed" &&
+      inputValue !== "Error" &&
+      inputValue !== "Pending") {
+      swal.showInputError("Please enter [Fixed, Error, Pending] as the value.");
+      return false;
+    }
+    $.post('updateStep', {
       updateId: updateId,
       index: index,
-      step: inputValue
-    }, function() {
-      $("#"+messageId).parent().remove();
+      step: inputValue,
+      correlationId: correlationId,
+      text: text,
+      queue: queue
+    }, function () {
+      $("#" + messageId).parent().remove();
     });
     swal.close();
   });

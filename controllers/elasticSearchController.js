@@ -11,11 +11,21 @@ module.exports.showLinkedLog = function(req, res) {
         res.render('linked-log', {currentUrl: 'replays', log: log})
     });
 };
-module.exports.updateAsFixed = function(req, res) {
+module.exports.updateStep = function(req, res) {
     var updateId = req.body.updateId;
     var index = req.body.index;
-    elasticService.update(index, updateId, 'Fixed', function() {
-        res.end();
+    var step = req.body.step;
+    var correlationId = req.body.correlationId;
+    var text = req.body.text;
+    var queue = req.body.queue;
+    elasticService.update(index, updateId, step == null ? "Fixed" : step, function() {
+        if (step != null && step !== "Fixed") {
+          elasticService.retry(correlationId, text, queue, function() {
+            res.end();
+          });
+        } else {
+          res.end();
+        }
     });
 };
 module.exports.updateAllAsFixed = function(req, res) {
@@ -95,12 +105,4 @@ module.exports.showFilteredResults = function(req, res) {
         }
         res.render('log-display', {currentUrl: service, hits: hits});
     });
-};
-module.exports.changeStep = function(req, res) {
-  var updateId = req.body.updateId;
-  var index = req.body.index;
-  var step = req.body.step;
-  elasticService.update(index, updateId, step, function() {
-    res.end();
-  });
 };
