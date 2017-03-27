@@ -111,3 +111,39 @@ $('.changeQueueButton').click(function () {
         swal.close();
     });
 });
+
+$('.changeStepButton').click(function () {
+  var messageId = $(this).attr('messageId');
+  var updateId = $(this).attr('logId');
+  var index = $(this).attr('index');
+  swal({
+    title: "Change Step",
+    text: "please enter the step name for this log",
+    input: "select",
+    inputOptions: {
+        'Error': 'Error',
+        'Fixed': 'Fixed',
+        'Complete': 'Complete',
+        'Pending': 'Pending',
+        'Processing': 'Processing',
+        'Validating': 'Validating'
+    },
+    showCancelButton: true,
+    closeOnConfirm: false
+  }, function(inputValue) {
+    if (inputValue === false) return false;
+    if (inputValue === "") {
+      swal.showInputError("You need to provide a step name");
+      return false;
+    }
+
+    $.post('changeStep', {
+      updateId: updateId,
+      index: index,
+      step: inputValue
+    }, function() {
+      $("#"+messageId).parent().remove();
+    });
+    swal.close();
+  });
+});

@@ -7,6 +7,7 @@ module.exports = function(express) {
     router.post('/fixAll', ensureAuthenticated, elasticController.updateAllAsFixed);
     router.post('/retry', ensureAuthenticated, elasticController.retry);
     router.post('/retryAll', ensureAuthenticated, elasticController.retryAll);
+    router.post('/changeStep', ensureAuthenticated, elasticController.changeStep);
     router.get('/retries', ensureAuthenticated, elasticController.showRetries);
     router.get('/replays', ensureAuthenticated, elasticController.showReplays);
     router.get('/filtered', ensureAuthenticated, elasticController.showFilteredResults);

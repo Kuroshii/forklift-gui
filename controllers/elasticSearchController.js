@@ -5,8 +5,8 @@ var logger = require('../utils/logger');
 module.exports.showLinkedLog = function(req, res) {
     elasticService.get(req.query.id, function(log) {
         if (log == null) {
-            req.flash("error", "INVALID LOG ID");
-            res.redirect('/')
+            req.flash("error", "INVALID LOG ID - YOU HAVE BEEN REDIRECTED TO HOME");
+            res.redirect('dashboard');
         }
         res.render('linked-log', {currentUrl: 'replays', log: log})
     });
@@ -95,4 +95,12 @@ module.exports.showFilteredResults = function(req, res) {
         }
         res.render('log-display', {currentUrl: service, hits: hits});
     });
-}
+};
+module.exports.changeStep = function(req, res) {
+  var updateId = req.body.updateId;
+  var index = req.body.index;
+  var step = req.body.step;
+  elasticService.update(index, updateId, step, function() {
+    res.end();
+  });
+};
