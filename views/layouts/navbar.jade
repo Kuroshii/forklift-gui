@@ -1,4 +1,6 @@
 <!-- Navbar -->
+link(href='css/navbar.css', rel='stylesheet', media='screen')
+
 nav(class="navbar navbar-default navbar-static-top navbar-inverse")
     div(class="container-fluid")
         div(class="navbar-header")
@@ -18,8 +20,8 @@ nav(class="navbar navbar-default navbar-static-top navbar-inverse")
                     a(href="replays" id="searchReplay" name="replay")
                         span.glyphicon.glyphicon-warning-sign
                         |  Search Replay
-                li
-                    a#viewLog
+                li(class="viewLog")
+                    a(id="viewLog")
                         span.glyphicon.glyphicon-eye-open
                         |  View Log
 
@@ -32,4 +34,6 @@ nav(class="navbar navbar-default navbar-static-top navbar-inverse")
                     a(href="logout")
                         span(class="glyphicon glyphicon-log-out")
                         |  Logout
+script(src='js/jquery-1.11.3.min.js')
+script(src='js/navbar.js')
 <!-- End Navbar -->
