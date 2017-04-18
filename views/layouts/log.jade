@@ -15,7 +15,7 @@ a.list-group-item(id=messageId)
                 button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
                     span.glyphicon.glyphicon-step-forward
                     |  Change Step
-                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
+                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue disabled=(val.connector == 'KafkaConnector'))
                     span.glyphicon.glyphicon-pencil
                     |  Change Queue
                 button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+logId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
@@ -25,7 +25,7 @@ a.list-group-item(id=messageId)
     div.collapse.listCollapse
         .row.listing-details
             span.badge
-                span #{val.connector} ID: #{correlationId}
+                span #{val.connector || "ActiveMQConnector"} ID: #{correlationId}
         if val.text || val.errors
             if val.text
                 .btn-toolbar
