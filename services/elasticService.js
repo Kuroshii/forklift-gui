@@ -111,7 +111,7 @@ service.update = function(index, updateId, step, done) {
     });
 };
 
-service.retry = function(correlationId, text, queue, done) {
+service.retryActiveMqMessage = function(correlationId, text, queue, done) {
     var msg = {
         jmsHeaders : { 'correlation-id' : correlationId },
         body : text,
@@ -126,6 +126,11 @@ service.retry = function(correlationId, text, queue, done) {
     stompClient.publish(msg.queue, msg.body, msg.jmsHeaders);
     done();
 };
+
+service.retryKafkaMessage = function(text, serializedText, topic, done) {
+    log.warn('Retrying messages to kafka is currently not supported');
+    done();
+}
 
 service.stats = function(done) {
     getStats('forklift-retry*', function(retryStats) {

@@ -1,11 +1,12 @@
 $('[data-toggle="tooltip"]').tooltip();
+
 var pathnameSize = window.location.pathname.split('/').length - 1;
 if (window.location.pathname.split('/')[pathnameSize] == "replays" ||
     (window.location.pathname.split('/')[pathnameSize] == "filtered" &&
      window.location.search.split("&")[0] == "?service=replays")) {
     $(".mouseOver").mouseover(function () {
-        var messageId = $(this).parent().attr('id');
-        var errorHtml = $("#pre-error" + messageId).html();
+        var errorHtml = $(this).parent().parent().find(".msgError pre").html();
+
         $(this).parent().parent().find(".errorHoverDisplay").html(errorHtml);
         $(this).parent().parent().find(".errorHoverDisplay").show();
     }).mouseout(function () {
@@ -65,11 +66,18 @@ $('.retryButton').click(function () {
     var correlationId = $(this).attr('correlationId');
     var text = $(this).attr('text');
     var queue = $(this).attr('queue');
-    $.post('retry', {
+    var connector  = $(this).attr('connector')
+    var serializedMessage = $(this).attr('serializedMessage')
+
+    var retryMsg = {
+        connector: connector,
+        queue: queue,
         correlationId: correlationId,
         text: text,
-        queue: queue
-    }, function() {
+        serializedMessage: serializedMessage
+    }
+
+    $.post('retry', retryMsg, function() {
         $("#"+messageId).parent().remove();
     });
 });

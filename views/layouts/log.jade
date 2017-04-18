@@ -1,12 +1,12 @@
-a.list-group-item
-    div(id=messageId data-toggle="collapse" data-target="#listCollapse" + messageId)
+a.list-group-item(id=messageId)
+    div(data-toggle="collapse" data-target="#" + messageId + " .listCollapse")
         div.list-group-item-heading.mouseOver
             span.badge.pull-right=moment(timestamp).format("lll")
             h2.queue=val.queue
         hr
         if currentUrl === 'replays'
             div.btn-toolbar
-                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
+                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue connector=val.connector serializedMessage=val['serialized-form'] disabled=(val.connector == 'KafkaConnector'))
                     span.glyphicon.glyphicon-repeat
                     |  Retry
                 button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
@@ -18,28 +18,28 @@ a.list-group-item
                 button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
                     span.glyphicon.glyphicon-pencil
                     |  Change Queue
-                button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+messageId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
+                button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+logId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
                     span.glyphicon.glyphicon-link
                     | Share Link
         img.toggle-arrow.pull-right(src='img/toggle_arrow.svg', data-toggle='tooltip', title='Arrow')
-    div.collapse(id="listCollapse" + messageId)
+    div.collapse.listCollapse
         .row.listing-details
             span.badge
-                span Correlation ID: #{correlationId}
+                span #{val.connector} ID: #{correlationId}
         if val.text || val.errors
             if val.text
                 .btn-toolbar
-                    div.viewInfoBtn.btn.btn-sm.btn-info(data-toggle="collapse" data-target="#json" + messageId) View Json&nbsp;
+                    div.viewInfoBtn.btn.btn-sm.btn-info(data-toggle="collapse" data-target="#" + messageId + " .msgJson") View Json&nbsp;
                         span.glyphicon.glyphicon-chevron-down
-                div.collapse(id="json" + messageId)
+                div.collapse.msgJson
                     pre
                         code.json=JSON.stringify(val.text, null, 2)
             if val.errors
                 .btn-toolbar
-                    div.viewInfoBtn.btn.btn-sm.btn-danger(type="button" data-toggle="collapse" data-target="#error" + messageId) View Error&nbsp;
+                    div.viewInfoBtn.btn.btn-sm.btn-danger(type="button" data-toggle="collapse" data-target="#" + messageId + " .msgError") View Error&nbsp;
                         span.glyphicon.glyphicon-chevron-down
-                div.collapse(id="error" + messageId)
-                    pre(id="pre-error" + messageId)
+                div.collapse.msgError
+                    pre
                         code.java=val.errors
     if currentUrl == 'retries'
         h5.queue

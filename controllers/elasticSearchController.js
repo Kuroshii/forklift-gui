@@ -8,7 +8,7 @@ module.exports.showLinkedLog = function(req, res) {
             req.flash("error", "INVALID LOG ID - YOU HAVE BEEN REDIRECTED TO HOME");
             res.redirect('dashboard');
         }
-        res.render('linked-log', {currentUrl: 'replays', log: log})
+        res.render('linked-log', {currentUrl: 'replays', log: log});
     });
 };
 module.exports.updateStep = function(req, res) {
@@ -47,9 +47,22 @@ module.exports.retry = function(req, res) {
     var correlationId = req.body.correlationId;
     var text = req.body.text;
     var queue = req.body.queue;
-    elasticService.retry(correlationId, text, queue, function() {
-        res.end();
-    })
+    var connector = req.body.connector;
+
+    if (connector === 'KafkaConnector') {
+        elasticService.retryKafkaMessage(text, req.body.serializedMessage, queue, function() {
+            res.end();
+        });
+    } else if (connector === 'ActiveMQConnector') {
+        elasticService.retryActiveMqMessage(correlationId, text, queue, function() {
+            res.end();
+        });
+    } else {
+        logger.warn('assuming unmarked message came from ActiveMQ: ' + text)
+        elasticService.retryActiveMqMessage(correlationId, text, queue, function() {
+            res.end();
+        });
+    }
 };
 
 module.exports.retryAll = function(req, res) {
