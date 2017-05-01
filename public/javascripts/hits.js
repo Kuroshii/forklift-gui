@@ -1,3 +1,4 @@
+
 $('[data-toggle="tooltip"]').tooltip();
 
 var pathnameSize = window.location.pathname.split('/').length - 1;
@@ -63,22 +64,27 @@ $("#fixAllButton").click(function() {
 });
 $('.retryButton').click(function () {
     var messageId = $(this).attr('messageId');
+
+    var connector  = $(this).attr('connector');
+    var role = $(this).attr('role');
+    var roleMessage  = $(this).attr('roleMessage');
+
     var correlationId = $(this).attr('correlationId');
     var text = $(this).attr('text');
     var queue = $(this).attr('queue');
-    var connector  = $(this).attr('connector')
-    var serializedMessage = $(this).attr('serializedMessage')
 
     var retryMsg = {
         connector: connector,
-        queue: queue,
-        correlationId: correlationId,
+        role: role,
+        roleMessage: roleMessage,
+        // legacy attributes
         text: text,
-        serializedMessage: serializedMessage
-    }
+        correlationId: correlationId,
+        queue: queue
+    };
 
     $.post('retry', retryMsg, function() {
-        $("#"+messageId).parent().remove();
+        $("#"+messageId).remove();
     });
 });
 $('.fixButton').click(function () {
@@ -90,7 +96,7 @@ $('.fixButton').click(function () {
         index: index,
         step: "Fixed"
     }, function() {
-        $("#"+messageId).parent().remove();
+        $("#"+messageId).remove();
     });
 });
 $('.changeQueueButton').click(function () {
@@ -115,7 +121,7 @@ $('.changeQueueButton').click(function () {
             text: text,
             queue: inputValue
         }, function() {
-            $("#"+messageId).parent().remove();
+            $("#"+messageId).remove();
         });
         swal.close();
     });
@@ -155,7 +161,7 @@ $('.changeStepButton').click(function () {
       text: text,
       queue: queue
     }, function () {
-      $("#" + messageId).parent().remove();
+      $("#" + messageId).remove();
     });
     swal.close();
   });

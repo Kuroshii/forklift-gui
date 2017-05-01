@@ -44,22 +44,38 @@ module.exports.updateAllAsFixed = function(req, res) {
 };
 
 module.exports.retry = function(req, res) {
-    var correlationId = req.body.correlationId;
-    var text = req.body.text;
-    var queue = req.body.queue;
+    var roleMessage = req.body.roleMessage;
+    var role = req.body.role;
     var connector = req.body.connector;
 
     if (connector === 'KafkaConnector') {
-        elasticService.retryKafkaMessage(text, req.body.serializedMessage, queue, function() {
+        elasticService.sendToKafka({
+            topic: 'forklift-role-' + role,
+            message: {
+                value: Buffer.from(roleMessage, 'base64')
+            }
+        }, function() {
             res.end();
         });
     } else if (connector === 'ActiveMQConnector') {
-        elasticService.retryActiveMqMessage(correlationId, text, queue, function() {
+        elasticService.sendToActiveMq({
+            queue: 'forklift-role-' + role,
+            body: roleMessage,
+            jmsHeaders: {}
+        }, function() {
             res.end();
         });
     } else {
-        logger.warn('assuming unmarked message came from ActiveMQ: ' + text)
-        elasticService.retryActiveMqMessage(correlationId, text, queue, function() {
+        var queue = req.body.queue;
+        var text = req.body.text;
+        var correlationId = req.body.correlationId;
+
+        logger.warn('Assuming unrecognized connector is a legacy retry for activemq queue "' + queue + '"');
+        elasticService.sendToActiveMq({
+            queue: queue,
+            body: text,
+            jmsHeaders: {'correlation-id': correlationId}
+        }, function() {
             res.end();
         });
     }

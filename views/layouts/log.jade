@@ -6,7 +6,7 @@ a.list-group-item(id=messageId)
         hr
         if currentUrl === 'replays'
             div.btn-toolbar
-                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue connector=val.connector serializedMessage=val['serialized-form'] disabled=(val.connector == 'KafkaConnector'))
+                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue connector=val.connector roleMessage=val['role-message'] role=val['role'])
                     span.glyphicon.glyphicon-repeat
                     |  Retry
                 button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
@@ -15,7 +15,7 @@ a.list-group-item(id=messageId)
                 button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
                     span.glyphicon.glyphicon-step-forward
                     |  Change Step
-                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue disabled=(val.connector == 'KafkaConnector'))
+                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
                     span.glyphicon.glyphicon-pencil
                     |  Change Queue
                 button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+logId+"'" data-toggle="tooltip" title="Opens log in a shareable url")

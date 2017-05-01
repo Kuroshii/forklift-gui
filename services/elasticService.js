@@ -1,10 +1,16 @@
 var elasticsearch = require('elasticsearch');
 var Stomp = require('stomp-client');
 var logger = require('../utils/logger');
+var kafka = require('no-kafka');
 
 var client = new elasticsearch.Client({
     host: (process.env.FORKLIFT_GUI_ES_HOST || 'localhost') + ":" + (process.env.FORKLIFT_GUI_ES_PORT || 9200)
 });
+
+var kafkaClient = new kafka.Producer({
+    connectionString: '127.0.0.1:29092'
+});
+kafkaClient.init();
 
 var stompClient;
 var service = {};
@@ -111,24 +117,32 @@ service.update = function(index, updateId, step, done) {
     });
 };
 
-service.retryActiveMqMessage = function(correlationId, text, queue, done) {
-    var msg = {
-        jmsHeaders : { 'correlation-id' : correlationId },
-        body : text,
-        queue : queue
-    };
 
-    logger.info('Sending: ' + msg.jmsHeaders['correlation-id']);
+service.sendToActiveMq = function(msg, done) {
+    if (msg.jmsHeaders['correlation-id']) {
+        logger.info('Sending AMQ message: ' + msg.jmsHeaders['correlation-id']);
+    } else {
+        logger.info('Sending AMQ message');
+    }
     // messages to the stomp connector should persist through restarts
     msg.jmsHeaders['persistent'] = 'true';
     // special tag to allow non binary msgs
     msg.jmsHeaders['suppress-content-length'] = 'true';
     stompClient.publish(msg.queue, msg.body, msg.jmsHeaders);
     done();
-};
+}
 
-service.retryKafkaMessage = function(text, serializedText, topic, done) {
-    log.warn('Retrying messages to kafka is currently not supported');
+service.sendToKafka = function(msg, done) {
+    logger.info('Sending Kafka message to ' + msg.topic);
+    kafkaClient.send(msg).then(function(res) {
+        if (res.err) {
+            logger.error("Error sending message to kafka: " + JSON.stringify(res.err));
+        } else {
+            logger.info("Kafka message successfully sent: " + JSON.stringify(res));
+        }
+    }, function(err) {
+        logger.info("Error sending message to kafka: " + JSON.stringify(err));
+    });
     done();
 }
 
