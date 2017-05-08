@@ -15,16 +15,7 @@ html
         div.container-fluid
             .row
                 .list-group
-                    - var val = log
-                    - var logId = val._id;
-                    - var logIndex = val._index;
-                    - val = val._source;
-                    - var timestamp = val.time;
-                    - var retryCount = val["forklift-retry-count"];
-                    - var maxRetryCount = val["forklift-retry-max-retries"];
-                    - var display = retryCount == maxRetryCount ? true : false;
-                    - var correlationId = logId
-                    - var messageId = "message";
+                    - log = extractLog(log, 0)
                     include layouts/log
 
     script(src='js/jquery-1.11.3.min.js')

@@ -1,24 +1,24 @@
-a.list-group-item(id=messageId)
-    div(data-toggle="collapse" data-target="#" + messageId + " .listCollapse")
+a.list-group-item(id=log.messageId)
+    div(data-toggle="collapse" data-target="#" + log.messageId + " .listCollapse")
         div.list-group-item-heading.mouseOver
-            span.badge.pull-right=moment(timestamp).format("lll")
-            h2.queue=role
+            span.badge.pull-right=moment(log.time).format("lll")
+            h2.queue=log.role
         hr
         div.btn-toolbar
             if currentUrl === 'replays'
-                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex destination=destination connector=connector roleMessage=roleMessage role=role version=version)
+                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version)
                     span.glyphicon.glyphicon-repeat
                     |  Retry
-                button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex role=role)
+                button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex role=log.role)
                     span.glyphicon.glyphicon-ok
                     |  Fixed
-                button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex)
+                button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex)
                     span.glyphicon.glyphicon-step-forward
                     |  Change Step
-                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
+                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex)
                     span.glyphicon.glyphicon-pencil
                     |  Change Queue
-                button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+logId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
+                button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+log.logId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
                     span.glyphicon.glyphicon-link
                     | Share Link
             img.toggle-arrow.pull-right(src='img/toggle_arrow.svg', data-toggle='tooltip', title='Arrow')
@@ -27,40 +27,40 @@ a.list-group-item(id=messageId)
             tbody
                 tr
                     th Connector
-                    td #{connector}
+                    td #{log.connector}
                 tr
                     th ID
-                    td #{logId}
+                    td #{log.logId}
                 tr
                     th DestinationType
-                    td #{val["destination-type"] || "queue"}
+                    td #{log.val["destination-type"] || "queue"}
                 tr
                     th DestinationName
-                    td #{destination}
-                if val["source-description"]
+                    td #{log.destination}
+                if log.val["source-description"]
                     tr
                         th SourceDescription
-                        td #{val["source-description"]}
+                        td #{log.val["source-description"]}
                 tr
-                    th ReplayVersion
-                    td #{version || "1"}
+                    th LogVersion
+                    td #{log.version}
 
-        if val.text
+        if log.val.text
             .btn-toolbar
-                div.viewInfoBtn.btn.btn-sm.btn-info(data-toggle="collapse" data-target="#" + messageId + " .msgJson") View Json&nbsp;
+                div.viewInfoBtn.btn.btn-sm.btn-info(data-toggle="collapse" data-target="#" + log.messageId + " .msgJson") View Json&nbsp;
                     span.glyphicon.glyphicon-chevron-down
             div.collapse.msgJson
                 pre
-                    code.json=val.text
-        if val.errors
+                    code.json=log.val.text
+        if log.val.errors
             .btn-toolbar
-                div.viewInfoBtn.btn.btn-sm.btn-danger(type="button" data-toggle="collapse" data-target="#" + messageId + " .msgError") View Error&nbsp;
+                div.viewInfoBtn.btn.btn-sm.btn-danger(type="button" data-toggle="collapse" data-target="#" + log.messageId + " .msgError") View Error&nbsp;
                     span.glyphicon.glyphicon-chevron-down
             div.collapse.msgError
                 pre
-                    code.java=val.errors
+                    code.java=log.val.errors
     if currentUrl == 'retries'
         h5.queue
             b Retry Count •
-            |  #{retryCount} / #{maxRetryCount}
+            |  #{log.retryCount} / #{log.maxRetryCount}
     .errorHoverDisplay

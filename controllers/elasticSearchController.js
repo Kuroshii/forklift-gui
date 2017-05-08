@@ -2,13 +2,38 @@ var express = require('express');
 var elasticService = require('../services/elasticService.js');
 var logger = require('../utils/logger');
 
+
+var extractLog = function(log, i) {
+    var val = log._source;
+
+    return {
+        val: val,
+
+        logId: log._id,
+        logIndex: log._index,
+        time: val.time,
+
+        connector: val["destination-connector"] || "ActiveMQConnector",
+        destination: val["destination-name"] || val["queue"],
+        role: val["role"] || val["queue"],
+        roleMessage: val["destination-message"] || val["text"],
+        version: val["forklift-replay-version"] || val["forklift-retry-version"] || "1",
+
+        retryCount: val["forklift-retry-count"],
+        maxRetryCount: val["forklift-retry-max-retries"],
+
+        messageId: "message-" + i,
+        correlationId: log._id
+    };
+};
+
 module.exports.showLinkedLog = function(req, res) {
     elasticService.get(req.query.id, function(log) {
         if (log == null) {
             req.flash("error", "INVALID LOG ID - YOU HAVE BEEN REDIRECTED TO HOME");
             res.redirect('dashboard');
         }
-        res.render('linked-log', {currentUrl: 'replays', log: log});
+        res.render('linked-log', {currentUrl: 'replays', log: log, extractLog: extractLog});
     });
 };
 module.exports.updateStep = function(req, res) {
@@ -20,11 +45,11 @@ module.exports.updateStep = function(req, res) {
     var queue = req.body.queue;
     elasticService.update(index, updateId, step == null ? "Fixed" : step, function() {
         if (step != null && step !== "Fixed") {
-          elasticService.retry(correlationId, text, queue, function() {
-            res.end();
-          });
+            elasticService.retry(correlationId, text, queue, function() {
+                res.end();
+            });
         } else {
-          res.end();
+            res.end();
         }
     });
 };
@@ -108,7 +133,7 @@ module.exports.showRetries = function(req, res) {
         for (var i = 0; i < logs.length; i++) {
             hits.push(logs[i]);
         }
-        res.render('log-display', {currentUrl: 'retries', hits: hits})
+        res.render('log-display', {currentUrl: 'retries', hits: hits, extractLog: extractLog})
     });
 };
 module.exports.showReplays = function(req, res) {
@@ -120,7 +145,7 @@ module.exports.showReplays = function(req, res) {
         for (var i = 0; i < logs.length; i++) {
             hits.push(logs[i]);
         }
-        res.render('log-display', {currentUrl: 'replays', hits: hits})
+        res.render('log-display', {currentUrl: 'replays', hits: hits, extractLog: extractLog})
     });
 };
 module.exports.showFilteredResults = function(req, res) {
@@ -136,6 +161,6 @@ module.exports.showFilteredResults = function(req, res) {
         for (var i = 0; i < logs.length; i++) {
             hits.push(logs[i]);
         }
-        res.render('log-display', {currentUrl: service, hits: hits});
+        res.render('log-display', {currentUrl: service, hits: hits, extractLog: extractLog});
     });
 };
