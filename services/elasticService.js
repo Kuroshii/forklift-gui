@@ -64,8 +64,6 @@ service.get = function(id, done) {
 service.poll = function(service, role, size, done) {
     var index = 'forklift-'+service+'*';
 
-    logger.info("Polling: " + index + " for role " + role);
-
     var query;
     if (role == null) {
         query = {
@@ -151,10 +149,8 @@ service.sendToKafka = function(msg, done) {
 
 service.stats = function(done) {
     getStats('forklift-retry*', function(retryStats) {
-        logger.info("retry stats done " + JSON.stringify(retryStats));
         getStats('forklift-replay*', function(replayStats) {
-            logger.info("replay stats done " + JSON.stringify(replayStats));
-            return done({
+            done({
                 replay: replayStats,
                 retry: retryStats
             })
@@ -186,10 +182,8 @@ var getStats = function(index, done) {
             var role = hit['role'] || hit['queue'];
             roleTotals[role] = (roleTotals[role] || 0) + 1;
 
-            logger.info("DInfo: " + role + " " + roleTotals[role]);
         });
-        logger.info("Finished stats");
-        return done({
+        done({
             totalLogs: size,
             roleTotals: roleTotals
         });

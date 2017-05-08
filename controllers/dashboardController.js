@@ -9,10 +9,8 @@ module.exports.show = function (req, res) {
     if (process.env.FORKLIFT_GUI_AUTHORIZED_EMAIL_DOMAINS.indexOf(domain) > -1) {
         // get forklift gui stats
         elasticService.ping(function(alive) {
-            logger.info("Ping successful!");
             if (alive) {
                 elasticService.stats(function(stats) {
-                    logger.info('Got stats: ' + stats);
                     if (stats) {
                         res.render('dashboard', {currentUrl: '', stats: stats});
                     } else {
