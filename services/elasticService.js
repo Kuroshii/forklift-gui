@@ -61,11 +61,13 @@ service.get = function(id, done) {
         done(null);
     });
 };
-service.poll = function(service, queue, size, done) {
+service.poll = function(service, role, size, done) {
     var index = 'forklift-'+service+'*';
 
+    logger.info("Polling: " + index + " for role " + role);
+
     var query;
-    if (queue == null) {
+    if (role == null) {
         query = {
             query_string: {
                 query: "Error",
@@ -75,12 +77,13 @@ service.poll = function(service, queue, size, done) {
     } else {
         query = {
             bool: {
-                must: [
-                    {match: {"step": "Error"}},
-                    {match: {"queue": queue}}
+                must: {match: {"step": "Error"}},
+                should: [
+                    {match: {"queue": role}},
+                    {match: {"role": role}}
                 ]
             }
-        }
+        };
     }
     client.search({
         index: index,
@@ -141,15 +144,17 @@ service.sendToKafka = function(msg, done) {
             logger.info("Kafka message successfully sent: " + JSON.stringify(res));
         }
     }, function(err) {
-        logger.info("Error sending message to kafka: " + JSON.stringify(err));
+        logger.error("Error sending message to kafka: " + JSON.stringify(err));
     });
     done();
 }
 
 service.stats = function(done) {
     getStats('forklift-retry*', function(retryStats) {
+        logger.info("retry stats done " + JSON.stringify(retryStats));
         getStats('forklift-replay*', function(replayStats) {
-            done({
+            logger.info("replay stats done " + JSON.stringify(replayStats));
+            return done({
                 replay: replayStats,
                 retry: retryStats
             })
@@ -174,31 +179,21 @@ var getStats = function(index, done) {
         }
     }).then(function (resp) {
         var size = resp.hits.hits.length;
-        var queues = [];
-        var queueTotals = [];
-        if (size == 0)
-            return done({
-                totalLogs: 0,
-                queues: queues,
-                queueTotals: queueTotals
-            });
+        var roleTotals = {};
         resp.hits.hits.forEach(function(hit, i) {
             hit = hit._source;
-            if (queues.indexOf(hit.queue) > -1) {
-                var index = queues.indexOf(hit.queue);
-                queueTotals[index] = queueTotals[index] + 1;
-            } else  {
-                queues.push(hit.queue);
-                queueTotals.push(1);
-            }
-            if (i == (size - 1)) {
-                return done({
-                    totalLogs: size,
-                    queues: queues,
-                    queueTotals: queueTotals
-                });
-            }
+
+            var role = hit['role'] || hit['queue'];
+            roleTotals[role] = (roleTotals[role] || 0) + 1;
+
+            logger.info("DInfo: " + role + " " + roleTotals[role]);
         });
+        logger.info("Finished stats");
+        return done({
+            totalLogs: size,
+            roleTotals: roleTotals
+        });
+
     }, function(err) {
         logger.error(err.message);
         done(null);

@@ -66,21 +66,21 @@ $('.retryButton').click(function () {
     var messageId = $(this).attr('messageId');
 
     var connector  = $(this).attr('connector');
+    var version = $(this).attr('version');
     var role = $(this).attr('role');
+    var destination  = $(this).attr('destination');
     var roleMessage  = $(this).attr('roleMessage');
 
     var correlationId = $(this).attr('correlationId');
-    var text = $(this).attr('text');
-    var queue = $(this).attr('queue');
 
     var retryMsg = {
         connector: connector,
         role: role,
+        destination: destination,
         roleMessage: roleMessage,
-        // legacy attributes
-        text: text,
-        correlationId: correlationId,
-        queue: queue
+        version: version,
+        // carry this on for AMQ
+        correlationId: correlationId
     };
 
     $.post('retry', retryMsg, function() {

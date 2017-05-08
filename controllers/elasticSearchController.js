@@ -44,36 +44,40 @@ module.exports.updateAllAsFixed = function(req, res) {
 };
 
 module.exports.retry = function(req, res) {
-    var roleMessage = req.body.roleMessage;
-    var role = req.body.role;
     var connector = req.body.connector;
+    var version = req.body.version;
 
-    if (connector === 'KafkaConnector') {
-        elasticService.sendToKafka({
-            topic: 'forklift-role-' + role,
-            message: {
-                value: Buffer.from(roleMessage, 'base64')
-            }
-        }, function() {
-            res.end();
-        });
-    } else if (connector === 'ActiveMQConnector') {
-        elasticService.sendToActiveMq({
-            queue: 'forklift-role-' + role,
-            body: roleMessage,
-            jmsHeaders: {}
-        }, function() {
-            res.end();
-        });
+    var destination = req.body.destination;
+    var roleMessage = req.body.roleMessage;
+
+    var role = req.body.role;
+    var correlationId = req.body.correlationId;
+
+    if (version && version == '2') {
+        logger.info('Retrying message for role "' + role + '" to connector "' + connector + '"');
+        if (connector === 'KafkaConnector') {
+            elasticService.sendToKafka({
+                topic: destination,
+                message: {
+                    value: Buffer.from(roleMessage, 'base64')
+                }
+            }, function() {
+                res.end();
+            });
+        } else if (connector === 'ActiveMQConnector') {
+            elasticService.sendToActiveMq({
+                queue: destination,
+                body: roleMessage,
+                jmsHeaders: {'correlation-id': correlationId}
+            }, function() {
+                res.end();
+            });
+        }
     } else {
-        var queue = req.body.queue;
-        var text = req.body.text;
-        var correlationId = req.body.correlationId;
-
-        logger.warn('Assuming unrecognized connector is a legacy retry for activemq queue "' + queue + '"');
+        logger.info('Assuming message with unrecognized version "' + version + '" is a legacy message for activemq queue "' + destination + '"');
         elasticService.sendToActiveMq({
-            queue: queue,
-            body: text,
+            queue: destination,
+            body: roleMessage,
             jmsHeaders: {'correlation-id': correlationId}
         }, function() {
             res.end();
@@ -121,10 +125,10 @@ module.exports.showReplays = function(req, res) {
 };
 module.exports.showFilteredResults = function(req, res) {
     var service = req.query.service;
-    var queue = req.query.queue;
+    var role = req.query.role;
 
     var tempService = service == 'retries' ? 'retry' : 'replay';
-    elasticService.poll(tempService, queue, 50, function(logs, err) {
+    elasticService.poll(tempService, role, 50, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
