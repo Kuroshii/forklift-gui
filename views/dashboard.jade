@@ -34,9 +34,9 @@ html
                             hr
                             if stats.retry.totalLogs > 0
                                 h3.text-uppercase Total Error Logs - #{stats.retry.totalLogs}
-                                  - for (var role in stats.retry.roleTotals)
-                                      - var roleTotal = stats.retry.roleTotals[role]
-                                      a.btn.btn-info.btn-lg.btn-block.text-uppercase(href="filtered?service=retries&role=" + role) #{role} - #{roleTotal}
+                                - for (var role in stats.retry.roleTotals)
+                                    - var roleTotal = stats.retry.roleTotals[role]
+                                    a.btn.btn-info.btn-lg.btn-block.text-uppercase(href="filtered?service=retries&role=" + role) #{role} - #{roleTotal}
                             else
                                 div.alert.alert-success
                                     h1.noListings.text-center NO RETRY LOGS FOUND
@@ -46,13 +46,13 @@ html
                             hr
                             if stats.replay.totalLogs > 0
                                 h3.text-uppercase Total Error Logs - #{stats.replay.totalLogs}
-                                    - for (var role in stats.replay.roleTotals)
-                                        - var roleTotal = stats.replay.roleTotals[role]
-                                        a.queueBtn.btn.btn-info.btn-lg.text-uppercase(href="filtered?service=replays&role=" + role) #{role} - #{roleTotal}
-                                        .btn.queueModBtn.retryBtn.btn-primary.btn-lg.text-uppercase(queue=queue data-toggle="tooltip" title="Will retry all logs in queue")
-                                            span.glyphicon.glyphicon-retweet
-                                        .btn.queueModBtn.fixBtn.btn-danger.btn-lg.text-uppercase(queue=queue data-toggle="tooltip" title="Will mark all logs in queue as fixed")
-                                            span.glyphicon.glyphicon-fire
+                                - for (var role in stats.replay.roleTotals)
+                                    - var roleTotal = stats.replay.roleTotals[role]
+                                    a.queueBtn.btn.btn-info.btn-lg.text-uppercase(href="filtered?service=replays&role=" + role) #{role} - #{roleTotal}
+                                    .btn.queueModBtn.retryBtn.btn-primary.btn-lg.text-uppercase(queue=queue data-toggle="tooltip" title="Will retry all logs in queue")
+                                        span.glyphicon.glyphicon-retweet
+                                    .btn.queueModBtn.fixBtn.btn-danger.btn-lg.text-uppercase(queue=queue data-toggle="tooltip" title="Will mark all logs in queue as fixed")
+                                        span.glyphicon.glyphicon-fire
                             else
                                 div.alert.alert-success
                                     h1.noListings.text-center NO REPLAY LOGS FOUND
