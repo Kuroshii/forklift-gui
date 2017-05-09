@@ -18,7 +18,7 @@ var extractLog = function(log, i) {
         role: val["role"] || val["queue"],
         roleMessage: val["destination-message"] || val["text"],
         version: val["forklift-replay-version"] || val["forklift-retry-version"] || "1",
-        stepCount: val["step-count"],
+        stepCount: val["forklift-replay-step-count"],
 
         retryCount: val["forklift-retry-count"],
         maxRetryCount: val["forklift-retry-max-retries"],
@@ -60,7 +60,7 @@ module.exports.updateAllAsFixed = function(req, res) {
             req.flash('error', err);
         }
         for (var i = 0; i < logs.length; i++) {
-            var stepCount = logs[i]._source['step-count'];
+            var stepCount = logs[i]._source['forklift-replay-step-count'];
             elasticService.update(logs[i]._index, logs[i]._id, 'Fixed', stepCount, function() {
             })
         }
