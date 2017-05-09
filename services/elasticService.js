@@ -79,7 +79,8 @@ service.poll = function(service, role, size, done) {
                 should: [
                     {match: {"queue": role}},
                     {match: {"role": role}}
-                ]
+                ],
+                minimum_should_match: 1
             }
         };
     }

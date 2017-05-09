@@ -21,19 +21,19 @@ $('.modifyBtns').click(function (evt) {
 $("#filterButton").click(function() {
     var service = $(this).attr('service');
     swal({
-        title: "Filter by Queue",
-        text: "Input the queue you would like to view logs for",
+        title: "Filter by Role",
+        text: "Input the role you would like to view logs for",
         type: "input",
         showCancelButton: true,
         closeOnConfirm: false,
-        inputPlaceholder: "desired queue..."
+        inputPlaceholder: "desired role..."
     }, function(inputValue) {
         if (inputValue === false) return false;
         if (inputValue === "") {
-            swal.showInputError("You need to provide a queue");
+            swal.showInputError("You need to provide a role");
             return false;
         }
-        window.location = "filtered?service="+service+"&queue="+inputValue;
+        window.location = "filtered?service="+service+"&role="+inputValue;
         swal.close();
     });
 });
