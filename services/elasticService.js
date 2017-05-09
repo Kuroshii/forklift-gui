@@ -64,9 +64,8 @@ service.get = function(id, done) {
         size: 1,
         body: {
             query: {
-                query_string: {
-                    query: id,
-                    fields: ["_id"]
+                term: {
+                    '_id': id
                 }
             }
         }
