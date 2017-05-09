@@ -43,14 +43,11 @@ module.exports.updateStep = function(req, res) {
     var updateId = req.body.updateId;
     var index = req.body.index;
     var step = req.body.step;
-    var correlationId = req.body.correlationId;
-    var text = req.body.text;
-    var queue = req.body.queue;
-    elasticService.update(index, updateId, step == null ? "Fixed" : step, function() {
-        if (step != null && step !== "Fixed") {
-            elasticService.retry(correlationId, text, queue, function() {
-                res.end();
-            });
+    var stepCount = req.body.stepCount;
+
+    elasticService.update(index, updateId, step == null ? "Fixed" : step, stepCount, function() {
+        if (step != null && step == "Pending") {
+            module.exports.retry(req, res);
         } else {
             res.end();
         }
@@ -63,7 +60,8 @@ module.exports.updateAllAsFixed = function(req, res) {
             req.flash('error', err);
         }
         for (var i = 0; i < logs.length; i++) {
-            elasticService.update(logs[i]._index, logs[i]._id, 'Fixed', function() {
+            var stepCount = logs[i]._source['step-count'];
+            elasticService.update(logs[i]._index, logs[i]._id, 'Fixed', stepCount, function() {
             })
         }
         res.send("done");

@@ -91,10 +91,13 @@ $('.fixButton').click(function () {
     var messageId = $(this).attr('messageId');
     var updateId = $(this).attr('logId');
     var index = $(this).attr('index');
+    var stepCount = $(this).attr('stepCount');
+
     $.post('updateStep', {
         updateId: updateId,
         index: index,
-        step: "Fixed"
+        step: "Fixed",
+        stepCount: stepCount
     }, function() {
         $("#"+messageId).remove();
     });
@@ -128,41 +131,56 @@ $('.changeQueueButton').click(function () {
 });
 
 $('.changeStepButton').click(function () {
-  var messageId = $(this).attr('messageId');
-  var updateId = $(this).attr('logId');
-  var index = $(this).attr('index');
-  var correlationId = $(this).attr('correlationId');
-  var text = $(this).attr('text');
-  var queue = $(this).attr('queue');
-  swal({
-    title: "Change Step",
-    text: "please enter the step name for this log",
-    type: "input",
-    showCancelButton: true,
-    closeOnConfirm: false,
-    inputPlaceholder: "Fixed, Error, or Pending"
-  }, function(inputValue) {
-    if (inputValue === false) return false;
-    if (inputValue === "") {
-      swal.showInputError("You need to provide a step name");
-      return false;
-    }
-    if (inputValue !== "Fixed" &&
-      inputValue !== "Error" &&
-      inputValue !== "Pending") {
-      swal.showInputError("Please enter [Fixed, Error, Pending] as the value.");
-      return false;
-    }
-    $.post('updateStep', {
-      updateId: updateId,
-      index: index,
-      step: inputValue,
-      correlationId: correlationId,
-      text: text,
-      queue: queue
-    }, function () {
-      $("#" + messageId).remove();
+    var logId = $(this).attr('logId');
+    var messageId = $(this).attr('messageId');
+    var index = $(this).attr('index');
+
+    var connector  = $(this).attr('connector');
+    var version = $(this).attr('version');
+    var role = $(this).attr('role');
+    var destination  = $(this).attr('destination');
+    var roleMessage  = $(this).attr('roleMessage');
+
+    var stepCount = $(this).attr('stepCount');
+
+    var correlationId = $(this).attr('correlationId');
+
+    swal({
+        title: "Change Step",
+        text: "please enter the step name for this log",
+        type: "input",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        inputPlaceholder: "Fixed, Error, or Pending"
+    }, function(inputValue) {
+        if (inputValue === false) return false;
+        if (inputValue === "") {
+            swal.showInputError("You need to provide a step name");
+            return false;
+        }
+        if (inputValue !== "Fixed" &&
+            inputValue !== "Error" &&
+            inputValue !== "Pending") {
+            swal.showInputError("Please enter [Fixed, Error, Pending] as the value.");
+            return false;
+        }
+        $.post('updateStep', {
+            updateId: logId,
+            index: index,
+            step: inputValue,
+            stepCount: stepCount,
+
+            // retry info
+            connector: connector,
+            role: role,
+            destination: destination,
+            roleMessage: roleMessage,
+            version: version,
+            // carry this on for AMQ
+            correlationId: correlationId
+        }, function () {
+            $("#" + messageId).remove();
+        });
+        swal.close();
     });
-    swal.close();
-  });
 });

@@ -100,8 +100,8 @@ service.poll = function(service, role, size, done) {
     });
 };
 
-service.update = function(index, updateId, step, done) {
-    client.update({
+service.update = function(index, updateId, step, version, done) {
+    var updateRequest = {
         index: index,
         id: updateId,
         type: 'log',
@@ -110,7 +110,14 @@ service.update = function(index, updateId, step, done) {
                 step: step
             }
         }
-    }, function (err) {
+    };
+
+    if (version) {
+        updateRequest.version = version;
+        updateRequest.versionType = 'force';
+    }
+
+    client.update(updateRequest, function (err) {
         if (err) {
             logger.error(err);
         }

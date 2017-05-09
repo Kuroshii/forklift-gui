@@ -9,10 +9,10 @@ a.list-group-item(id=log.messageId)
                 button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version)
                     span.glyphicon.glyphicon-repeat
                     |  Retry
-                button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex role=log.role)
+                button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex role=log.role stepCount=log.stepCount)
                     span.glyphicon.glyphicon-ok
                     |  Fixed
-                button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex)
+                button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version stepCount=log.stepCount)
                     span.glyphicon.glyphicon-step-forward
                     |  Change Step
                 button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex)
