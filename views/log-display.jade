@@ -35,14 +35,14 @@ html
                         .col-lg-6
                             - for(var i = 0; i < size; i+=2)
                                 - var log = extractLog(hits[i], i);
-                                - var display = currentUrl == 'retries' || log.val['forklift-retry-max-retries-exceeded'] == 'true';
+                                - var display = currentUrl == 'retries' || log.retriesDone;
                                 if display == true
                                     include layouts/log
 
                         .col-lg-6
                             - for(var i = 1; i < size; i+=2)
                                 - var log = extractLog(hits[i], i);
-                                - var display = currentUrl == 'retries' || log.val['forklift-retry-max-retries-exceeded'] == 'true';
+                                - var display = currentUrl == 'retries' || log.retriesDone;
                                 if display == true
                                   include layouts/log
             else

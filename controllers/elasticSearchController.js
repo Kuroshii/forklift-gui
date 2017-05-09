@@ -18,9 +18,12 @@ var extractLog = function(log, i) {
         role: val["role"] || val["queue"],
         roleMessage: val["destination-message"] || val["text"],
         version: val["forklift-replay-version"] || val["forklift-retry-version"] || "1",
+        stepCount: val["step-count"],
 
         retryCount: val["forklift-retry-count"],
         maxRetryCount: val["forklift-retry-max-retries"],
+        // a bit hacky, ensures logs display when there are no retry properties
+        retriesDone: val["forklift-retry-count"] == val["forklift-retry-max-retries"],
 
         messageId: "message-" + i,
         correlationId: log._id
@@ -129,11 +132,7 @@ module.exports.showRetries = function(req, res) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
-        var hits = [];
-        for (var i = 0; i < logs.length; i++) {
-            hits.push(logs[i]);
-        }
-        res.render('log-display', {currentUrl: 'retries', hits: hits, extractLog: extractLog})
+        res.render('log-display', {currentUrl: 'retries', hits: logs, extractLog: extractLog});
     });
 };
 module.exports.showReplays = function(req, res) {
@@ -141,11 +140,7 @@ module.exports.showReplays = function(req, res) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
-        var hits = [];
-        for (var i = 0; i < logs.length; i++) {
-            hits.push(logs[i]);
-        }
-        res.render('log-display', {currentUrl: 'replays', hits: hits, extractLog: extractLog})
+        res.render('log-display', {currentUrl: 'replays', hits: logs, extractLog: extractLog});
     });
 };
 module.exports.showFilteredResults = function(req, res) {
@@ -157,10 +152,6 @@ module.exports.showFilteredResults = function(req, res) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
-        var hits = [];
-        for (var i = 0; i < logs.length; i++) {
-            hits.push(logs[i]);
-        }
-        res.render('log-display', {currentUrl: service, hits: hits, extractLog: extractLog});
+        res.render('log-display', {currentUrl: service, hits: logs, extractLog: extractLog});
     });
 };

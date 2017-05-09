@@ -47,6 +47,10 @@ a.list-group-item(id=log.messageId)
                 tr
                     th Index
                     td #{log.logIndex}
+                if log.stepCount
+                    tr
+                        th StepCount
+                        td #{log.stepCount}
 
         if log.val.text
             .btn-toolbar
