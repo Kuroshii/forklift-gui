@@ -1,4 +1,8 @@
 var elasticsearch = require('elasticsearch');
+var consul = require('consul')({
+    host: process.env.NODE_IP,
+    port: 8500
+});
 var Stomp = require('stomp-client');
 var logger = require('../utils/logger');
 var kafka = require('no-kafka');
@@ -7,10 +11,21 @@ var client = new elasticsearch.Client({
     host: (process.env.FORKLIFT_GUI_ES_HOST || 'localhost') + ":" + (process.env.FORKLIFT_GUI_ES_PORT || 9200)
 });
 
-var kafkaClient = new kafka.Producer({
-    connectionString: '127.0.0.1:29092'
+var kafkaClient;
+consul.catalog.service.nodes('kafka', function(err, result) {
+    if (err) {
+        logger.error("Error fetching IP from consul: " + err);
+        return;
+    }
+    var node = result[0];
+    var connectAddress = node['Address'] + ':' + node['ServicePort'];
+    logger.info("Connecting to kafka at: " + connectAddress);
+    kafkaClient = new kafka.Producer({
+        connectionString: connectAddress
+    });
+    kafkaClient.init();
 });
-kafkaClient.init();
+
 
 var stompClient;
 var service = {};
