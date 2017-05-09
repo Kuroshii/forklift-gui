@@ -40,19 +40,19 @@ $("#filterButton").click(function() {
 $("#fixAllButton").click(function() {
     swal({
         title: "Fix All",
-        text: "Set all logs as fixed for desired queue, no going back",
+        text: "Set all logs as fixed for desired role, no going back",
         type: "input",
         showCancelButton: true,
         closeOnConfirm: false,
-        inputPlaceholder: "desired queue..."
+        inputPlaceholder: "desired role..."
     }, function(inputValue) {
         if (inputValue === false) return false;
         if (inputValue === "") {
-            swal.showInputError("You need to provide a queue");
+            swal.showInputError("You need to provide a role");
             return false;
         }
         $.post('fixAll', {
-            queue: inputValue
+            role: inputValue
         }, function() {
             setTimeout(function() {
                 location.reload();
