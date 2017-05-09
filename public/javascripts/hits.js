@@ -102,28 +102,52 @@ $('.fixButton').click(function () {
         $("#"+messageId).remove();
     });
 });
-$('.changeQueueButton').click(function () {
+$('.sendToButton').click(function () {
     var messageId = $(this).attr('messageId');
-    var correlationId = $(this).attr('correlationId');
+    var sendType = $(this).attr('sendType');
+
+    var connector  = $(this).attr('connector');
+    var version = $(this).attr('version');
+    var role = $(this).attr('role');
+    var destination  = $(this).attr('destination');
+    var roleMessage  = $(this).attr('roleMessage');
     var text = $(this).attr('text');
+
+    var correlationId = $(this).attr('correlationId');
+
     swal({
-        title: "Change Queue",
-        text: "please input the queue you'd like this document to be sent",
+        title: "Send To New Destination",
+        text: "please input the destination to which you'd like this document to be sent",
         type: "input",
         showCancelButton: true,
         closeOnConfirm: false,
-        inputPlaceholder: "desired queue..."
+        inputPlaceholder: "desired destination..."
     }, function(inputValue) {
         if (inputValue === false) return false;
         if (inputValue === "") {
-            swal.showInputError("You need to provide a queue");
+            swal.showInputError("You need to provide a destination");
             return false;
         }
-        $.post('retry', {
-            correlationId: correlationId,
-            text: text,
-            queue: inputValue
-        }, function() {
+
+        var destination;
+        if (sendType === 'role') {
+            destination = 'forklift-role-' + inputValue;
+        } else if (sendType == 'raw') {
+            destination = inputValue;
+            roleMessage = text;
+        }
+
+        var retryMsg = {
+            connector: connector,
+            role: role,
+            destination: destination,
+            roleMessage: roleMessage,
+            version: version,
+            // carry this on for AMQ
+            correlationId: correlationId
+        };
+
+        $.post('retry', retryMsg, function() {
             $("#"+messageId).remove();
         });
         swal.close();

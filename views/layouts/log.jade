@@ -15,12 +15,16 @@ a.list-group-item(id=log.messageId)
                 button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version stepCount=log.stepCount)
                     span.glyphicon.glyphicon-step-forward
                     |  Change Step
-                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex)
+                button.modifyBtns.btn.btn-sm.btn-success.sendToButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version sendType='role')
                     span.glyphicon.glyphicon-pencil
-                    |  Change Queue
+                    |  Change Role
+                if log.connector === "ActiveMQConnector"
+                    button.modifyBtns.btn.btn-sm.btn-success.sendToButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector text=log.text role=log.role version=log.version sendType='raw')
+                        span.glyphicon.glyphicon-share-alt
+                        |  Change Queue
                 button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+log.logId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
                     span.glyphicon.glyphicon-link
-                    | Share Link
+                    |  Share Link
             img.toggle-arrow.pull-right(src='img/toggle_arrow.svg', data-toggle='tooltip', title='Arrow')
     div.collapse.listCollapse
         table.table

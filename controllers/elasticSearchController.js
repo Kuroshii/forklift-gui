@@ -17,6 +17,7 @@ var extractLog = function(log, i) {
         destination: val["destination-name"] || val["queue"],
         role: val["role"] || val["queue"],
         roleMessage: val["destination-message"] || val["text"],
+        text: val["text"],
         version: val["forklift-replay-version"] || val["forklift-retry-version"] || "1",
         stepCount: val["forklift-replay-step-count"],
 
