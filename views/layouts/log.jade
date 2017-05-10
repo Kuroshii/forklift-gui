@@ -15,9 +15,10 @@ a.list-group-item(id=log.messageId)
                 button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version stepCount=log.stepCount)
                     span.glyphicon.glyphicon-step-forward
                     |  Change Step
-                button.modifyBtns.btn.btn-sm.btn-success.sendToButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version sendType='role')
-                    span.glyphicon.glyphicon-pencil
-                    |  Change Role
+                if log.version === "2"
+                    button.modifyBtns.btn.btn-sm.btn-success.sendToButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version sendType='role')
+                        span.glyphicon.glyphicon-pencil
+                        |  Change Role
                 if log.connector === "ActiveMQConnector"
                     button.modifyBtns.btn.btn-sm.btn-success.sendToButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector text=log.text role=log.role version=log.version sendType='raw')
                         span.glyphicon.glyphicon-share-alt
