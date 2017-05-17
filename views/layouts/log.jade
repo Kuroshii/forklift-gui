@@ -1,48 +1,78 @@
-a.list-group-item
-    div(id=messageId data-toggle="collapse" data-target="#listCollapse" + messageId)
+a.list-group-item(id=log.messageId)
+    div(data-toggle="collapse" data-target="#" + log.messageId + " .listCollapse")
         div.list-group-item-heading.mouseOver
-            span.badge.pull-right=moment(timestamp).format("lll")
-            h2.queue=val.queue
+            span.badge.pull-right=moment(log.time).format("lll")
+            h2.queue=log.role
         hr
-        if currentUrl === 'replays'
-            div.btn-toolbar
-                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
+        div.btn-toolbar
+            if currentUrl === 'replays'
+                button.modifyBtns.btn.btn-sm.btn-primary.retryButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version)
                     span.glyphicon.glyphicon-repeat
                     |  Retry
-                button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
+                button.modifyBtns.btn.btn-sm.btn-primary.fixButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex role=log.role stepCount=log.stepCount)
                     span.glyphicon.glyphicon-ok
                     |  Fixed
-                button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
+                button.modifyBtns.btn.btn-sm.btn-success.changeStepButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version stepCount=log.stepCount)
                     span.glyphicon.glyphicon-step-forward
                     |  Change Step
-                button.modifyBtns.btn.btn-sm.btn-success.changeQueueButton(type="button" messageId=messageId logId=logId correlationId=correlationId index=logIndex text=val.text queue=val.queue)
-                    span.glyphicon.glyphicon-pencil
-                    |  Change Queue
-                button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+messageId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
+                if log.version === "2"
+                    button.modifyBtns.btn.btn-sm.btn-success.sendToButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector roleMessage=log.roleMessage role=log.role version=log.version sendType='role')
+                        span.glyphicon.glyphicon-pencil
+                        |  Change Role
+                if log.connector === "ActiveMQConnector"
+                    button.modifyBtns.btn.btn-sm.btn-success.sendToButton(type="button" messageId=log.messageId logId=log.logId correlationId=log.correlationId index=log.logIndex destination=log.destination connector=log.connector text=log.text role=log.role version=log.version sendType='raw')
+                        span.glyphicon.glyphicon-share-alt
+                        |  Change Queue
+                button.modifyBtns.btn.btn-sm.btn-info(onclick="window.location.href='log?id="+log.logId+"'" data-toggle="tooltip" title="Opens log in a shareable url")
                     span.glyphicon.glyphicon-link
-                    | Share Link
-        img.toggle-arrow.pull-right(src='img/toggle_arrow.svg', data-toggle='tooltip', title='Arrow')
-    div.collapse(id="listCollapse" + messageId)
-        .row.listing-details
-            span.badge
-                span Correlation ID: #{correlationId}
-        if val.text || val.errors
-            if val.text
-                .btn-toolbar
-                    div.viewInfoBtn.btn.btn-sm.btn-info(data-toggle="collapse" data-target="#json" + messageId) View Json&nbsp;
-                        span.glyphicon.glyphicon-chevron-down
-                div.collapse(id="json" + messageId)
-                    pre
-                        code.json=JSON.stringify(val.text, null, 2)
-            if val.errors
-                .btn-toolbar
-                    div.viewInfoBtn.btn.btn-sm.btn-danger(type="button" data-toggle="collapse" data-target="#error" + messageId) View Error&nbsp;
-                        span.glyphicon.glyphicon-chevron-down
-                div.collapse(id="error" + messageId)
-                    pre(id="pre-error" + messageId)
-                        code.java=val.errors
+                    |  Share Link
+            img.toggle-arrow.pull-right(src='img/toggle_arrow.svg', data-toggle='tooltip', title='Arrow')
+    div.collapse.listCollapse
+        table.table
+            tbody
+                tr
+                    th Connector
+                    td #{log.connector}
+                tr
+                    th ID
+                    td #{log.logId}
+                tr
+                    th DestinationType
+                    td #{log.val["destination-type"] || "queue"}
+                tr
+                    th DestinationName
+                    td #{log.destination}
+                if log.val["source-description"]
+                    tr
+                        th SourceDescription
+                        td #{log.val["source-description"]}
+                tr
+                    th LogVersion
+                    td #{log.version}
+                tr
+                    th Index
+                    td #{log.logIndex}
+                if log.stepCount
+                    tr
+                        th StepCount
+                        td #{log.stepCount}
+
+        if log.val.text
+            .btn-toolbar
+                div.viewInfoBtn.btn.btn-sm.btn-info(data-toggle="collapse" data-target="#" + log.messageId + " .msgJson") View Json&nbsp;
+                    span.glyphicon.glyphicon-chevron-down
+            div.collapse.msgJson
+                pre
+                    code.json=log.val.text
+        if log.val.errors
+            .btn-toolbar
+                div.viewInfoBtn.btn.btn-sm.btn-danger(type="button" data-toggle="collapse" data-target="#" + log.messageId + " .msgError") View Error&nbsp;
+                    span.glyphicon.glyphicon-chevron-down
+            div.collapse.msgError
+                pre
+                    code.java=log.val.errors
     if currentUrl == 'retries'
         h5.queue
             b Retry Count •
-            |  #{retryCount} / #{maxRetryCount}
+            |  #{log.retryCount} / #{log.maxRetryCount}
     .errorHoverDisplay
