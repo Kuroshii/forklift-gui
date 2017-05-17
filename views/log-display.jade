@@ -34,49 +34,21 @@ html
                     .list-group
                         .col-lg-6
                             - for(var i = 0; i < size; i+=2)
-                                - var val = hits[i]
-                                - var logId = val._id;
-                                - var logIndex = val._index;
-                                - val = val._source;
-                                - var timestamp = val.time;
-                                - var retryCount = val["forklift-retry-count"];
-                                - var maxRetryCount = val["forklift-retry-max-retries"];
-                                if currentUrl == 'replays'
-                                    - var display = retryCount == maxRetryCount ? true : false;
-                                    - var correlationId = logId
-                                    - var messageId = logId;
-                                    if display == true
-                                        include layouts/log
-                                else
-                                    - val = JSON.parse(val["forklift-retry-msg"])
-                                    - var correlationId = val.headers.CorrelationId;
-                                    - var messageId = val.messageId;
-                                    include layouts/log
-                        .col-lg-6
-                            - for(var i = 1; i < size; i+=2)
-                                - var val = hits[i]
-                                - var logId = val._id;
-                                - var logIndex = val._index;
-                                - val = val._source;
-                                - var timestamp = val.time;
-                                - var retryCount = val["forklift-retry-count"];
-                                - var maxRetryCount = val["forklift-retry-max-retries"];
-                                if currentUrl == 'replays'
-                                    - var display = retryCount == maxRetryCount ? true : false;
-                                    - var correlationId = logId
-                                    - var messageId = logId;
-                                    if display == true
-                                        include layouts/log
-                                else
-                                    - val = JSON.parse(val["forklift-retry-msg"])
-                                    - var correlationId = val.headers.CorrelationId;
-                                    - var messageId = val.messageId;
+                                - var log = extractLog(hits[i], i);
+                                - var display = currentUrl == 'retries' || log.retriesDone;
+                                if display == true
                                     include layouts/log
 
+                        .col-lg-6
+                            - for(var i = 1; i < size; i+=2)
+                                - var log = extractLog(hits[i], i);
+                                - var display = currentUrl == 'retries' || log.retriesDone;
+                                if display == true
+                                  include layouts/log
             else
                 div.alert.alert-success
-                    - var queue = currentUrl === 'replays' ? 'REPLAY' : 'RETRY'
-                    h1.noListings.text-center NO #{queue} LOGS FOUND
+                    - var logType = currentUrl === 'replays' ? 'REPLAY' : 'RETRY'
+                    h1.noListings.text-center NO #{logType} LOGS FOUND
 
     script(src='js/jquery-1.11.3.min.js')
     script(src='js/bootstrap.min.js')

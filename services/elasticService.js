@@ -1,10 +1,31 @@
 var elasticsearch = require('elasticsearch');
+var consul = require('consul')({
+    host: process.env.NODE_IP,
+    port: 8500
+});
 var Stomp = require('stomp-client');
 var logger = require('../utils/logger');
+var kafka = require('no-kafka');
 
 var client = new elasticsearch.Client({
     host: (process.env.FORKLIFT_GUI_ES_HOST || 'localhost') + ":" + (process.env.FORKLIFT_GUI_ES_PORT || 9200)
 });
+
+var kafkaClient;
+consul.catalog.service.nodes('kafka', function(err, result) {
+    if (err) {
+        logger.error("Error fetching IP from consul: " + err);
+        return;
+    }
+    var node = result[0];
+    var connectAddress = node['Address'] + ':' + node['ServicePort'];
+    logger.info("Connecting to kafka at: " + connectAddress);
+    kafkaClient = new kafka.Producer({
+        connectionString: connectAddress
+    });
+    kafkaClient.init();
+});
+
 
 var stompClient;
 var service = {};
@@ -43,9 +64,8 @@ service.get = function(id, done) {
         size: 1,
         body: {
             query: {
-                query_string: {
-                    query: id,
-                    fields: ["_id"]
+                term: {
+                    '_id': id
                 }
             }
         }
@@ -55,11 +75,11 @@ service.get = function(id, done) {
         done(null);
     });
 };
-service.poll = function(service, queue, size, done) {
+service.poll = function(service, role, size, done) {
     var index = 'forklift-'+service+'*';
 
     var query;
-    if (queue == null) {
+    if (role == null) {
         query = {
             query_string: {
                 query: "Error",
@@ -69,12 +89,14 @@ service.poll = function(service, queue, size, done) {
     } else {
         query = {
             bool: {
-                must: [
-                    {match: {"step": "Error"}},
-                    {match: {"queue": queue}}
-                ]
+                must: {match: {"step": "Error"}},
+                should: [
+                    {match: {"queue": role}},
+                    {match: {"role": role}}
+                ],
+                minimum_should_match: 1
             }
-        }
+        };
     }
     client.search({
         index: index,
@@ -93,8 +115,8 @@ service.poll = function(service, queue, size, done) {
     });
 };
 
-service.update = function(index, updateId, step, done) {
-    client.update({
+service.update = function(index, updateId, step, version, done) {
+    var updateRequest = {
         index: index,
         id: updateId,
         type: 'log',
@@ -103,7 +125,14 @@ service.update = function(index, updateId, step, done) {
                 step: step
             }
         }
-    }, function (err) {
+    };
+
+    if (version) {
+        updateRequest.version = version;
+        updateRequest.versionType = 'force';
+    }
+
+    client.update(updateRequest, function (err) {
         if (err) {
             logger.error(err);
         }
@@ -111,21 +140,34 @@ service.update = function(index, updateId, step, done) {
     });
 };
 
-service.retry = function(correlationId, text, queue, done) {
-    var msg = {
-        jmsHeaders : { 'correlation-id' : correlationId },
-        body : text,
-        queue : queue
-    };
 
-    logger.info('Sending: ' + msg.jmsHeaders['correlation-id']);
+service.sendToActiveMq = function(msg, done) {
+    if (msg.jmsHeaders['correlation-id']) {
+        logger.info('Sending AMQ message: ' + msg.jmsHeaders['correlation-id']);
+    } else {
+        logger.info('Sending AMQ message');
+    }
     // messages to the stomp connector should persist through restarts
     msg.jmsHeaders['persistent'] = 'true';
     // special tag to allow non binary msgs
     msg.jmsHeaders['suppress-content-length'] = 'true';
     stompClient.publish(msg.queue, msg.body, msg.jmsHeaders);
     done();
-};
+}
+
+service.sendToKafka = function(msg, done) {
+    logger.info('Sending Kafka message to ' + msg.topic);
+    kafkaClient.send(msg).then(function(res) {
+        if (res.err) {
+            logger.error("Error sending message to kafka: " + JSON.stringify(res.err));
+        } else {
+            logger.info("Kafka message successfully sent: " + JSON.stringify(res));
+        }
+    }, function(err) {
+        logger.error("Error sending message to kafka: " + JSON.stringify(err));
+    });
+    done();
+}
 
 service.stats = function(done) {
     getStats('forklift-retry*', function(retryStats) {
@@ -155,31 +197,19 @@ var getStats = function(index, done) {
         }
     }).then(function (resp) {
         var size = resp.hits.hits.length;
-        var queues = [];
-        var queueTotals = [];
-        if (size == 0)
-            return done({
-                totalLogs: 0,
-                queues: queues,
-                queueTotals: queueTotals
-            });
+        var roleTotals = {};
         resp.hits.hits.forEach(function(hit, i) {
             hit = hit._source;
-            if (queues.indexOf(hit.queue) > -1) {
-                var index = queues.indexOf(hit.queue);
-                queueTotals[index] = queueTotals[index] + 1;
-            } else  {
-                queues.push(hit.queue);
-                queueTotals.push(1);
-            }
-            if (i == (size - 1)) {
-                return done({
-                    totalLogs: size,
-                    queues: queues,
-                    queueTotals: queueTotals
-                });
-            }
+
+            var role = hit['role'] || hit['queue'];
+            roleTotals[role] = (roleTotals[role] || 0) + 1;
+
         });
+        done({
+            totalLogs: size,
+            roleTotals: roleTotals
+        });
+
     }, function(err) {
         logger.error(err.message);
         done(null);
