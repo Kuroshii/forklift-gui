@@ -113,8 +113,8 @@ module.exports.retry = function(req, res) {
 };
 
 module.exports.retryAll = function(req, res) {
-    var queue = req.body.queue;
-    elasticService.poll('replay', queue, 10000, function(logs, err) {
+    var role = req.body.role;
+    elasticService.poll('replay', role, 10000, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }

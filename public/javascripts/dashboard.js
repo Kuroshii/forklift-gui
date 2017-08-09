@@ -1,15 +1,15 @@
 $('[data-toggle="tooltip"]').tooltip();
 $(".fixBtn").click(function() {
-    var queue = $(this).attr('queue');
+    var role = $(this).attr('role');
     swal({
         title: "Are you sure?",
-        text: "This will set all [ " + queue + " ] replay logs as fixed.",
+        text: "This will set all [ " + role + " ] replay logs as fixed.",
         type: "warning",
         showCancelButton: true,
         confirmButtonText: 'Yes, Fix them!'
     }, function() {
         $.post('fixAll', {
-            queue: queue
+            role: role
         }, function() {
             setTimeout(function() {
                 location.reload();
@@ -18,10 +18,10 @@ $(".fixBtn").click(function() {
     });
 });
 $(".retryBtn").click(function() {
-    var queue = $(this).attr('queue');
+    var role = $(this).attr('role');
     swal({
         title: "Are you sure?",
-        text: "This will retry all [ " + queue + " ] replay logs.",
+        text: "This will retry all [ " + role + " ] replay logs.",
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -29,7 +29,7 @@ $(".retryBtn").click(function() {
         confirmButtonText: 'Yes, Retry them!'
     }, function() {
         $.post('retryAll', {
-            queue: queue
+            role: role
         }, function() {
             setTimeout(function() {
                 location.reload();
