@@ -71,56 +71,19 @@ module.exports.updateAllAsFixed = function(req, res) {
 };
 
 module.exports.retry = function(req, res) {
-    var connector = req.body.connector;
-    var version = req.body.version;
-
-    var destination = req.body.destination;
-    var roleMessage = req.body.roleMessage;
-
-    var role = req.body.role;
-    var correlationId = req.body.correlationId;
-
-    if (version && version == '2') {
-        logger.info('Retrying message for role "' + role + '" to connector "' + connector + '"');
-        if (connector === 'KafkaConnector') {
-            elasticService.sendToKafka({
-                topic: destination,
-                message: {
-                    value: Buffer.from(roleMessage, 'base64')
-                }
-            }, function() {
-                res.end();
-            });
-        } else if (connector === 'ActiveMQConnector') {
-            elasticService.sendToActiveMq({
-                queue: destination,
-                body: roleMessage,
-                jmsHeaders: {'correlation-id': correlationId}
-            }, function() {
-                res.end();
-            });
-        }
-    } else {
-        logger.info('Assuming message with unrecognized version "' + version + '" is a legacy message for activemq queue "' + destination + '"');
-        elasticService.sendToActiveMq({
-            queue: destination,
-            body: roleMessage,
-            jmsHeaders: {'correlation-id': correlationId}
-        }, function() {
-            res.end();
-        });
-    }
+    elasticService.retry(req.body, function() {
+        res.end();
+    });
 };
 
 module.exports.retryAll = function(req, res) {
-    var queue = req.body.queue;
-    elasticService.poll('replay', queue, 10000, function(logs, err) {
+    var role = req.body.role;
+    elasticService.poll('replay', role, 10000, function(logs, err) {
         if (logs === 'undefined' || logs == null) {
             req.flash('error', err);
         }
         for (var i = 0; i < logs.length; i++) {
-            elasticService.retry(logs[i]._id, logs[i]._source.text, queue, function() {
-            })
+            elasticService.retry(extractLog(logs[i]), function() {})
         }
         res.send("done");
     });
