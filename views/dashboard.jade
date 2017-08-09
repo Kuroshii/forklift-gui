@@ -49,9 +49,9 @@ html
                                 - for (var role in stats.replay.roleTotals)
                                     - var roleTotal = stats.replay.roleTotals[role]
                                     a.queueBtn.btn.btn-info.btn-lg.text-uppercase(href="filtered?service=replays&role=" + role) #{role} - #{roleTotal}
-                                    .btn.queueModBtn.retryBtn.btn-primary.btn-lg.text-uppercase(queue=queue data-toggle="tooltip" title="Will retry all logs in queue")
+                                    .btn.queueModBtn.retryBtn.btn-primary.btn-lg.text-uppercase(role=role data-toggle="tooltip" title="Will retry all logs for this role")
                                         span.glyphicon.glyphicon-retweet
-                                    .btn.queueModBtn.fixBtn.btn-danger.btn-lg.text-uppercase(queue=queue data-toggle="tooltip" title="Will mark all logs in queue as fixed")
+                                    .btn.queueModBtn.fixBtn.btn-danger.btn-lg.text-uppercase(role=role data-toggle="tooltip" title="Will mark all logs for this role as fixed")
                                         span.glyphicon.glyphicon-fire
                             else
                                 div.alert.alert-success

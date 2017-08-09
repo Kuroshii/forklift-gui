@@ -180,6 +180,28 @@ service.stats = function(done) {
     })
 };
 
+service.retry = function(log, done) {
+    if (!log.version && !log.connector) {
+        logger.info('Assuming message with undefined connector is a legacy message for activemq queue "' + destination + '"');
+        log.connector = "ActiveMQConnector"
+    }
+
+    if (log.connector === 'KafkaConnector') {
+        service.sendToKafka({
+            topic: log.destination,
+            message: {
+                value: Buffer.from(log.roleMessage, 'base64')
+            }
+        }, done);
+    } else if (log.connector === 'ActiveMQConnector') {
+        service.sendToActiveMq({
+            queue: log.destination,
+            body: log.roleMessage,
+            jmsHeaders: {'correlation-id': log.correlationId}
+        }, done);
+    }
+}
+
 var getStats = function(index, done) {
     client.search({
         index: index,
