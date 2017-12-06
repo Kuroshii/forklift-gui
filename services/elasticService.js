@@ -45,9 +45,7 @@ function stompConnect() {
 service.ping = function(done) {
     client.ping({
         // ping usually has a 3000ms timeout
-        requestTimeout: 3000,
-        // undocumented params are appended to the query string
-        hello: "elasticsearch!"
+        requestTimeout: 3000
     }, function (error) {
         if (error) {
             done(false);
