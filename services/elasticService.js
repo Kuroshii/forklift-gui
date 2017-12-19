@@ -124,13 +124,10 @@ service.update = function(index, updateId, step, version, done) {
             doc: {
                 step: step
             }
-        }
+        },
+        versionType: 'force',
+        version: version || 1
     };
-
-    if (version) {
-        updateRequest.version = version;
-        updateRequest.versionType = 'force';
-    }
 
     client.update(updateRequest, function (err) {
         if (err) {
