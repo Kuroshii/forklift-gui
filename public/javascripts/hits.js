@@ -65,6 +65,11 @@ $("#fixAllButton").click(function() {
 $('.retryButton').click(function () {
     var messageId = $(this).attr('messageId');
 
+    // properties for performing step changes
+    var updateId = $(this).attr('logId');
+    var index = $(this).attr('index');
+    var stepCount = $(this).attr('stepCount');
+
     var connector  = $(this).attr('connector');
     var version = $(this).attr('version');
     var role = $(this).attr('role');
@@ -74,6 +79,10 @@ $('.retryButton').click(function () {
     var correlationId = $(this).attr('correlationId');
 
     var retryMsg = {
+        updateId: updateId,
+        index: index,
+        stepCount: stepCount,
+
         connector: connector,
         role: role,
         destination: destination,

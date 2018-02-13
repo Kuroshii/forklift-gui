@@ -150,7 +150,7 @@ service.sendToActiveMq = function(msg, done) {
     done();
 }
 
-service.sendToKafka = function(msg, done) {
+service.sendToKafka = function(msg, done, onError) {
     logger.info('Sending Kafka message to ' + msg.topic);
     kafkaClient.send(msg).then(function(res) {
         if (res.err) {
@@ -160,6 +160,7 @@ service.sendToKafka = function(msg, done) {
         }
     }, function(err) {
         logger.error("Error sending message to kafka: " + JSON.stringify(err));
+        onError();
     });
     done();
 }
@@ -176,25 +177,29 @@ service.stats = function(done) {
 };
 
 service.retry = function(log, done) {
-    if (!log.version && !log.connector) {
-        logger.info('Assuming message with undefined connector is a legacy message for activemq queue "' + destination + '"');
-        log.connector = "ActiveMQConnector"
-    }
+    onRetryStarted(log, function() {
+        if (!log.version && !log.connector) {
+            logger.info('Assuming message with undefined connector is a legacy message for activemq queue "' + destination + '"');
+            log.connector = "ActiveMQConnector"
+        }
 
-    if (log.connector === 'KafkaConnector') {
-        service.sendToKafka({
-            topic: log.destination,
-            message: {
-                value: Buffer.from(log.roleMessage, 'base64')
-            }
-        }, done);
-    } else if (log.connector === 'ActiveMQConnector') {
-        service.sendToActiveMq({
-            queue: log.destination,
-            body: log.roleMessage,
-            jmsHeaders: {'correlation-id': log.correlationId}
-        }, done);
-    }
+        if (log.connector === 'KafkaConnector') {
+            service.sendToKafka({
+                topic: log.destination,
+                message: {
+                    value: Buffer.from(log.roleMessage, 'base64')
+                }
+            }, done, function() {
+                onRetryError(log);
+            });
+        } else if (log.connector === 'ActiveMQConnector') {
+            service.sendToActiveMq({
+                queue: log.destination,
+                body: log.roleMessage,
+                jmsHeaders: {'correlation-id': log.correlationId}
+            }, done);
+        }
+    });
 }
 
 var getStats = function(index, done) {
@@ -232,4 +237,13 @@ var getStats = function(index, done) {
         done(null);
     });
 };
+
+var onRetryStarted = function(logMessage, done) {
+    service.update(logMessage.index, logMessage.updateId, "Retry Sent", logMessage.stepCount, done);
+};
+
+var onRetryError = function(logMessage) {
+    service.update(logMessage.index, logMessage.updateId, "Error", logMessage.version, function() {});
+};
+
 module.exports = service;
